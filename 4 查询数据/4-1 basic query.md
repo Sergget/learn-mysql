@@ -1,0 +1,32 @@
+# 基本查询
+
+要查询数据库表的数据，我们使用如下的SQL语句：
+
+SELECT * FROM <表名>
+假设表名是students，要查询students表的所有行，我们用如下SQL语句：
+```sql
+-- 查询students表的所有数据
+SELECT * FROM students;
+```
+使用SELECT * FROM students时，SELECT是关键字，表示将要执行一个查询，*表示“所有列”，FROM表示将要从哪个表查询，本例中是students表。
+
+该SQL将查询出students表的所有数据。注意：查询结果也是一个二维表，它包含列名和每一行的数据。
+
+要查询classes表的所有行，我们用如下SQL语句：
+```sql
+-- 查询classes表的所有数据
+SELECT * FROM classes;
+```
+运行上述SQL语句，观察查询结果。
+
+SELECT语句其实并不要求一定要有FROM子句。我们来试试下面的SELECT语句：
+```sql
+-- 计算100+200
+SELECT 100+200;
+```
+上述查询会直接计算出表达式的结果。虽然SELECT可以用作计算，但它并不是SQL的强项。但是，不带FROM子句的SELECT语句有一个有用的用途，就是用来判断当前到数据库的连接是否有效。许多检测工具会执行一条SELECT 1;来测试数据库连接。
+
+## 小结
+使用SELECT查询的基本语句SELECT * FROM <表名>可以查询一个表的所有行和所有列的数据。
+
+SELECT查询的结果是一个二维表。
