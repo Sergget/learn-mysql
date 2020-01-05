@@ -1,0 +1,239 @@
+# 权限管理
+
+## 1. 用户登录与登出
+
+### 1.1 登录SQL命令：
+
+```mysql
+mysql -u username -p
+```
+
+接着输入该用户的密码即可。
+登出SQL命令：
+
+```mysql
+exit
+```
+
+### 1.2 创建用户：CREATE USER
+登录系统用户之后，就可以使用SQL命令操作数据库
+
+创建用户SQL命令：CREATE USER
+
+```mysql
+create user 'username'@'localhost' identified by 'password';
+```
+
+***@*** 后面的’localhost’即为本地的端口。
+
+执行结果
+
+```mysql
+mysql> create user 'zxsql'@'localhost' identified by '123456';
+Query OK, 0 rows affected (0.08 sec)
+mysql>
+```
+
+### 1.3 查看创建用户的结果
+
+```mysql
+mysql> select user from mysql.user where user = 'zxsql';
++-------+
+| user  |
++-------+
+| zxsql |
++-------+
+1 row in set (0.00 sec)
+
+mysql>
+```
+
+### 1.4 修改用户名与密码：SET
+
+SQL命令：
+
+```mysql
+set password for 'username'@'localhost'=PASSWORD('123456');
+```
+
+这里调用PASSWORD()接口来使密码进行加密。
+
+示例：修改用户zxsql密码为123456
+
+```mysql
+mysql> set password for 'zxsql'@'localhost'=PASSWORD('123456');
+Query OK, 0 rows affected, 1 warning (0.00 sec)
+
+mysql>
+```
+
+### 1.5 删除用户：DROP
+SQL命令：
+
+```mysql
+drop user 'username'@'localhost';
+```
+
+## 2 用户权限管理
+
+### 2.1 赋予用户权限：GRANT
+用户用到的SQL权限为
+
+|||
+|-|-|
+|ALL             | 所有可用的权限|
+|CREATE          | 创建库、表和索引|
+|LOCK_TABLES     | 锁定表|
+|ALTER           | 修改表|
+|DELETE          | 删除表|
+|INSERT          | 插入表或列|
+|UPDATE          | 更新表|
+|SELECT          | 检索表或列的数据|
+|CREATE_VIEW     | 创建视图|
+|SHOW_DATABASES  | 列出数据库|
+|DROP            | 删除库、表和视图|
+
+SQL命令：
+
+```mysql
+grant <privileges> on <database>.<table> to 'username'@'localhost';
+```
+
+|||
+|-|-|
+|privileges  |上述列出来的权限名|
+|database    |需要赋予的数据库名|
+|table       |需要赋予的数据库里面的表明|
+
+赋予多个权限需要用逗号“,”分隔。
+
+示例：赋予用户zxsql在数据库zx_mysql的所有权限； 
+
+SQL命令：
+
+```mysql
+grant ALL on zx_mysql.* to 'zxsql'@'localhost';
+	
+mysql> grant all on zx_mysql.* to 'zxsql'@'localhost';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql>
+```
+
+### 2.2 显示用户权限SHOW GRANTS
+SQL命令：
+
+```mysql
+show grants for 'username'@'localhost';
+```
+
+当用户普通用户查看自己的权限是不需要输入名字，直接输入：
+
+```mysql
+show grants;
+mysql> show grants for 'zxsql'@'localhost';
++---------------------------------------------------------------+
+| Grants for zxsql@localhost                                    |
++---------------------------------------------------------------+
+| GRANT USAGE ON *.* TO 'zxsql'@'localhost'                     |
+| GRANT ALL PRIVILEGES ON `zx_mysql`.* TO 'zxsql'@'localhost'   |
++---------------------------------------------------------------+
+2 rows in set (0.00 sec)
+
+mysql>
+```
+
+### 2.3 回收用户权限：REVOKE
+SQL命令：
+
+```mysql
+revoke <privileges> on <database>.<table> from 'username'@'localhost';
+```
+
+示例：回收用户zxsql在数据库zx_mysql的删除表权限； 
+
+SQL命令：DELETE
+
+```mysql
+revoke DELETE on zx_mysql.* from 'zxsql'@'localhost';
+
+mysql> revoke DELETE on zx_mysql.* from 'zxsql'@'localhost';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> show grants for 'zxsql'@'localhost';
++-------------------------------------------------------+
+| Grants for zxsql@localhost                            |
++-------------------------------------------------------+
+| GRANT USAGE ON *.* TO 'zxsql'@'localhost'             |
+| GRANT SELECT, INSERT, UPDATE, CREATE, DROP,           |
+| REFERENCES, INDEX, ALTER, CREATE TEMPORARY TABLES,    |
+| LOCK TABLES, EXECUTE, CREATE VIEW, SHOW VIEW,         |
+| CREATE ROUTINE, ALTER ROUTINE, EVENT,                 |
+| TRIGGER ON `zx_mysql`.* TO 'zxsql'@'localhost'        |
++-------------------------------------------------------+
+2 rows in set (0.00 sec)
+
+mysql>
+```
+
+### 2.4 保存设置：FLUSH PRIVILEGES
+
+设置权限可以通过修改数据库的形式进行设置，设置完毕之后需要刷新更改的权限设置。 
+
+#### 修改权限数据库
+
+```mysql
+mysql> select Db from db where user = 'zxsql';
++----------+
+| Db       |
++----------+
+| zx_mysql |
++----------+
+1 row in set
+
+mysql>
+```
+
+SQL命令：
+
+```mysql
+FLUSH PRIVILEGES;
+
+mysql> flush privileges;
+Query OK, 0 rows affected (0.06 sec)
+
+mysql>
+```
+
+### 2.5 权限限制与远程访问限制
+
+一个数据库对应一个项目，并且指派特定的用户去访问数据库，其中分为管理员用户，和访问用户。
+
+- 管理员用户：管理整个项目的数据库，包括表的创建，表中字段的创建。只能本地访问。
+- 普通用户：只能修改表中字段的数据内容，或者添加具体的数据内容。可以通过远程访问。
+
+**创建对应用户**
+
+管理员用户只能本地去登录访问，访问用户允许远程访问。
+
+````mysql
+mysql> create user 'zxpro-admin'@'localhost' identified by 'qwerty';
+Query OK, 0 rows affected
+mysql> create user 'zxpro-users'@'%' identified by '123456';
+Query OK, 0 rows affected
+mysql>
+````
+
+**赋予权限**
+
+```mysql
+mysql> grant ALL on zx_mysql.* to 'zxpro-admin'@'localhost';
+Query OK, 0 rows affected
+
+mysql> grant SELECT,INSERT,UPDATE on zx_mysql.* to 'zxpro-users'@'%';
+Query OK, 0 rows affected
+
+mysql>
+```
+
+文章摘自[https://blog.csdn.net/zxng_work/article/details/78822228](https://blog.csdn.net/zxng_work/article/details/78822228)
