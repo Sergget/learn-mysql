@@ -25,6 +25,7 @@
     * [6.1 管理MySQL](6.MySQL\6-1.管理MySQL.md)
     * [6.2 使用SQL语句](6.MySQL\6-2.实用SQL语句.md)
     * [6.3 MySQL权限管理](6.MySQL\6-3.MySQL权限管理.md)
+    * [6.4 MySQL的备份与恢复](6.MySQL\6-4.MySQL的备份与恢复.md)
 * [7 事务](7.事务\7-0.transaction.md)
     * [7.1 read uncommit](7.事务\7-1.read.uncommit.md)
     * [7.2 read committed](7.事务\7-2.read.committed.md)
